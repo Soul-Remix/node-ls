@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const chalk = require('chalk');
 
 fs.readdir(process.cwd(), async (err, files) => {
   if (err) {
     console.log(err);
     throw new Error(err);
   }
-  const arr = files.map((file) => {
+  const statPromises = files.map((file) => {
     return fs.promises.lstat(file);
   });
-  await Promise.all(arr);
-  for (let i = 0; i < arr.length; i++) {
-    if ((await arr[i]).isDirectory()) {
-      console.log(files[i] + '/');
+  const arr = await Promise.all(statPromises);
+  for (let stat of arr) {
+    const i = arr.indexOf(stat);
+    if (stat.isDirectory()) {
+      console.log(chalk.redBright(files[i] + '/'));
     } else {
       console.log(files[i]);
     }
