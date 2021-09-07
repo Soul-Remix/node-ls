@@ -7,16 +7,15 @@ fs.readdir(process.cwd(), async (err, files) => {
     console.log(err);
     throw new Error(err);
   }
-  for (let i = 0; i < files.length; i++) {
-    try {
-      const stat = await fs.promises.lstat(files[i]);
-      if (stat.isDirectory()) {
-        console.log(files[i] + '/');
-      } else {
-        console.log(files[i]);
-      }
-    } catch (err) {
-      console.log(err);
+  const arr = files.map((file) => {
+    return fs.promises.lstat(file);
+  });
+  await Promise.all(arr);
+  for (let i = 0; i < arr.length; i++) {
+    if ((await arr[i]).isDirectory()) {
+      console.log(files[i] + '/');
+    } else {
+      console.log(files[i]);
     }
   }
 });
